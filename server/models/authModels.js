@@ -1,6 +1,14 @@
-const users = {
-   1: { id: 1, name: 'John Doe', email: 'johndoe@gmail.com'},
-   2: { id: 2, name: 'Sally Market', email: 'sallyMarket@gmail.com'}
+const db = require('../db.js');
+
+console.log('in model');
+
+const fetchAllUsers = async () => {
+   console.log('in model');
+   const result = await db.query('SELECT * FROM users');
+   return result.rows;
 }
 
-module.exports = users;
+
+module.exports = {
+   fetchAllUsers
+};
