@@ -1,6 +1,7 @@
 const {
    getAllUsers,
    registerNewUser,
+   loginUser,
    
 } = require('../controllers/authControllers');
 const url = require('url');
@@ -25,12 +26,12 @@ const authRouter = (req, res) => {
       if (req.method === 'POST') return registerNewUser(req, res);
    }
 
+   if (pathname === '/api/login') {
+      if (req.method === 'POST') return loginUser(req, res);
+   }
+
    res.writeHead(404, { 'Content-Type': 'application/json' });
    res.end(JSON.stringify({ error: 'route not found' }));
-
-   // if (pathname === '/api/login') {
-   //    if (req.method === 'POST') return registerNewUser(req, res);
-   // }
 }
 
 

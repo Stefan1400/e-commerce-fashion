@@ -5,7 +5,7 @@ const fetchAllUsers = async () => {
    return result.rows;
 }
 
-const getUserById = async (email) => {
+const checkUserExists = async (email) => {
    const result = await db.query(
       'SELECT * FROM users WHERE email = $1',
       [email]
@@ -27,5 +27,5 @@ const registerUser = async (email, password) => {
 module.exports = {
    fetchAllUsers,
    registerUser,
-   getUserById
+   checkUserExists
 };
