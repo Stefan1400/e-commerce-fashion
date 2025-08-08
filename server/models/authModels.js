@@ -1,24 +1,23 @@
 const db = require('../db.js');
 
 const fetchAllUsers = async () => {
-   console.log('in fetchAllUsers model');
    const result = await db.query('SELECT * FROM users');
    return result.rows;
 }
 
-const registerUser = async (email, password) => {
+const getUserById = async (email) => {
    const result = await db.query(
-      'INSERT INTO users (email, password, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *'
-      [email, password]
+      'SELECT * FROM users WHERE email = $1',
+      [email]
    );
 
    return result.rows[0];
 }
 
-const getUserById = async (email) => {
+const registerUser = async (email, password) => {
    const result = await db.query(
-      'SELECT * FROM users WHERE email = $1 RETURNING *',
-      [email]
+      'INSERT INTO users (email, password, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *',
+      [email, password]
    );
 
    return result.rows[0];
