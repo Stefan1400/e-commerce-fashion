@@ -1,7 +1,7 @@
 const http = require('http');
 const { 
    authRouter,
- } = require('./routes/authRoutes');
+} = require('./routes/authRoutes');
 
 
 const server = http.createServer((req, res) => {

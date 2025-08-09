@@ -24,6 +24,8 @@ const registerUser = async (email, password) => {
 }
 
 
+
+
 module.exports = {
    fetchAllUsers,
    registerUser,

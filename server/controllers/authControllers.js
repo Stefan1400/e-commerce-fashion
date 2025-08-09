@@ -21,34 +21,12 @@ const checkEmailValid = (email) => {
    return regex.test(email);
 }
 
-const validChecker = async (email, password={undefined}) => {
-   //body or password doesnt exist:
-   if (!email || !password) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'email or password are invalid' }));
-      return;
-   }
-
-   //email doesnt fit correct format:
-   if (!checkEmailValid(email)) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'invalid email' }));
-      return;
-   };
-
-   //email length invalid:
-   if (email.length < 6 || email.length > 64) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'email invalid' }));
-      return;
-   };
-
-   //password length invalid:
-   if (password.length < 8 || password.length > 64) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'password invalid' }));
-      return;
-   };
+const validChecker = (email, password) => {
+   if (!email || !password) return 'email or password invalid';
+   if (!checkEmailValid(email)) return 'invalid email format';
+   if (email.length < 6 || email.length > 64) return 'email length invalid';
+   if (password.length < 8 || password.length > 64) return 'password length invalid';
+   return null;
 }
 
 const registerNewUser = async (req, res) => {
@@ -63,14 +41,14 @@ const registerNewUser = async (req, res) => {
          const parsedBody = JSON.parse(body);
          const { email, password } = parsedBody;
 
-         //using validChecker function:
-         validChecker(email, password);
-
-         if (!validChecker) {
+         //valid checker:
+         const error = validChecker(email, password);
+         if (error) {
+            console.log(error);
             res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'something went wrong in validChecker function' }));
+            res.end(JSON.stringify({ error }));
             return;
-         }
+         };
 
          //checking if email already exists:
          const userAlreadyExists = await authModel.checkUserExists(email);
@@ -132,23 +110,32 @@ const loginUser = async (req, res) => {
          const parsedBody = JSON.parse(body);
          const { email, password } = parsedBody;
 
-         //using validChecker function:
-         validChecker(email, password);
-
-         if (!validChecker) {
+         //valid checker:
+         const error = validChecker(email, password);
+         if (error) {
+            console.log(error);
             res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'something went wrong in validChecker function' }));
+            res.end(JSON.stringify({ error }));
             return;
-         }
+         };
 
          const fetchedUser = await authModel.checkUserExists(email);
 
          //user doesnt exist:
          if (!fetchedUser) {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.writeHead(401, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'user not found' }));
             return;
          };
+
+         const passwordMatches = await bcrypt.compare(password, fetchedUser.password);
+
+         if (!passwordMatches) {
+            console.log('password doesnt match');
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'password incorrect' }));
+            return;
+         }
 
          //signing token:
          const token = JWT.sign(
@@ -175,6 +162,8 @@ const loginUser = async (req, res) => {
       res.end(JSON.stringify({ error: 'invalid request' }));
    })
 }
+
+
 
 module.exports = {
    getAllUsers,
